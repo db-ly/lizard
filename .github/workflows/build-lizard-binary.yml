@@ -49,15 +49,7 @@ jobs:
         run: pip install pyinstaller lizard
 
       - name: Copy source
-        run: |
-          if [ -f "lizard/lizard.py" ]; then
-            cp lizard/lizard.py lizard.py
-          elif [ -f "lizard.py" ]; then
-            echo "lizard.py already in root"
-          else
-            echo "lizard.py not found"
-            exit 1
-          fi
+        run: cp lizard/lizard.py lizard.py
 
       - name: Build binary
         run: |
