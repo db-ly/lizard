@@ -49,6 +49,8 @@ jobs:
         run: pip install pyinstaller lizard
 
       - name: Download Lizard
+        env:
+          GIT_TERMINAL_PROMPT: 0
         run: |
           if [ "${{ github.event.inputs.lizard_version }}" != "" ]; then
             VERSION="${{ github.event.inputs.lizard_version }}"
