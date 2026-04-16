@@ -48,16 +48,16 @@ jobs:
       - name: Install dependencies
         run: pip install pyinstaller lizard
 
-      - name: Download Lizard
+      - name: Copy source
         run: |
-          if [ "${{ github.event.inputs.lizard_version }}" != "" ]; then
-            VERSION="${{ github.event.inputs.lizard_version }}"
+          if [ -f "lizard/lizard.py" ]; then
+            cp lizard/lizard.py lizard.py
+          elif [ -f "lizard.py" ]; then
+            echo "lizard.py already in root"
           else
-            VERSION="main"
+            echo "lizard.py not found"
+            exit 1
           fi
-          curl -sL "https://github.com/lizard-analyzer/lizard/archive/refs/heads/${VERSION}.zip" -o source.zip
-          unzip -q source.zip
-          cp lizard-*/lizard.py .
 
       - name: Build binary
         run: |
