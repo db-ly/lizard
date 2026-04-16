@@ -1,0 +1,108 @@
+name: Build Lizard Binary
+
+on:
+  workflow_dispatch:
+    inputs:
+      lizard_version:
+        description: 'Lizard version (leave empty for latest)'
+        required: false
+        default: ''
+      environment:
+        description: 'Build environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - prod
+
+env:
+  BUILD_ENV: ${{ github.event.inputs.environment }}
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: linux-x86_64
+            suffix: ''
+          - os: macos-latest
+            name: macos-arm64
+            suffix: ''
+          - os: windows-latest
+            name: windows-x86_64
+            suffix: .exe
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyinstaller lizard
+
+      - name: Download Lizard
+        run: |
+          if [ "${{ github.event.inputs.lizard_version }}" != "" ]; then
+            VERSION="${{ github.event.inputs.lizard_version }}"
+          else
+            VERSION="master"
+          fi
+          curl -sL "https://raw.githubusercontent.com/terryyin/lizard/${VERSION}/lizard.py" -o lizard.py
+
+      - name: Build binary
+        run: |
+          pyinstaller --onefile \
+                      --name "lizard-${{ matrix.name }}-${{ env.BUILD_ENV }}" \
+                      --distpath "./dist" \
+                      --workpath "./build" \
+                      --specpath "./" \
+                      lizard.py
+
+      - name: Rename output
+        run: |
+          if [ "${{ matrix.suffix }}" != "" ]; then
+            mv "dist/lizard-${{ matrix.name }}-${{ env.BUILD_ENV }}" "dist/lizard-${{ matrix.name }}-${{ env.BUILD_ENV }}${{ matrix.suffix }}"
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lizard-${{ matrix.name }}-${{ env.BUILD_ENV }}
+          path: |
+            dist/*
+            lizard.py
+
+  package:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List files
+        run: ls -la artifacts/
+
+      - name: Create distribution package
+        run: |
+          mkdir -p dist
+          cp artifacts/lizard-linux-x86_64-${{ env.BUILD_ENV }}/lizard* dist/
+          cp artifacts/lizard-macos-arm64-${{ env.BUILD_ENV }}/lizard* dist/
+          cp artifacts/lizard-windows-x86_64-${{ env.BUILD_ENV }}/lizard* dist/
+          ls -la dist/
+
+      - name: Upload final artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lizard-all-platforms-${{ env.BUILD_ENV }}
+          path: dist/
