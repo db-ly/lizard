@@ -49,6 +49,7 @@ jobs:
         run: pip install pyinstaller lizard
 
       - name: Verify source
+        shell: bash
         run: ls -la lizard.py && echo "lizard.py exists in root"
 
       - name: Build binary
@@ -61,6 +62,7 @@ jobs:
                       lizard.py
 
       - name: Rename output
+        shell: bash
         run: |
           if [ "${{ matrix.suffix }}" != "" ]; then
             mv "dist/lizard-${{ matrix.name }}-${{ env.BUILD_ENV }}" "dist/lizard-${{ matrix.name }}-${{ env.BUILD_ENV }}${{ matrix.suffix }}"
@@ -85,9 +87,11 @@ jobs:
           path: artifacts
 
       - name: List files
+        shell: bash
         run: ls -la artifacts/
 
       - name: Create distribution package
+        shell: bash
         run: |
           mkdir -p dist
           cp artifacts/lizard-linux-x86_64-${{ env.BUILD_ENV }}/lizard* dist/
