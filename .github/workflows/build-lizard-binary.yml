@@ -55,7 +55,7 @@ jobs:
           else
             VERSION="master"
           fi
-          curl -sL "https://raw.githubusercontent.com/terryyin/lizard/${VERSION}/lizard.py" -o lizard.py
+          curl -sL "https://raw.githubusercontent.com/lizard-analyzer/lizard/${VERSION}/lizard.py" -o lizard.py
 
       - name: Build binary
         run: |
