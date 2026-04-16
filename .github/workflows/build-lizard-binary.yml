@@ -16,6 +16,9 @@ on:
           - dev
           - prod
 
+env:
+  BUILD_ENV: ${{ github.event.inputs.environment }}
+
 jobs:
   build:
     strategy:
@@ -43,7 +46,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install --upgrade pip && pip install -r requirements-build.txt
+        run: pip install pyinstaller lizard
 
       - name: Verify source
         shell: bash
@@ -52,24 +55,26 @@ jobs:
       - name: Build binary
         shell: bash
         run: |
-          mkdir -p dist
           pyinstaller --onefile \
-                      --name "lizard-${{ matrix.name }}-${{ github.event.inputs.environment }}${{ matrix.suffix }}" \
+                      --name "lizard-${{ matrix.name }}-${{ env.BUILD_ENV }}${{ matrix.suffix }}" \
                       --distpath "./dist" \
                       --workpath "./build" \
                       --specpath "./" \
                       lizard.py
-          ls -la dist/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lizard-${{ matrix.name }}-${{ github.event.inputs.environment }}
-          path: dist/
+          name: lizard-${{ matrix.name }}-${{ env.BUILD_ENV }}
+          path: |
+            dist/*
+            lizard.py
 
   package:
     needs: build
     runs-on: ubuntu-latest
+    env:
+      BUILD_ENV: ${{ github.event.inputs.environment }}
 
     steps:
       - name: Download all artifacts
@@ -77,28 +82,21 @@ jobs:
         with:
           path: artifacts
 
-      - name: List downloaded files
+      - name: List files
         shell: bash
-        run: find artifacts -type f -ls
-
-      - name: Verify artifacts exist
-        shell: bash
-        run: |
-          ls -la artifacts/lizard-linux-x86_64-${{ github.event.inputs.environment }}/lizard || exit 1
-          ls -la artifacts/lizard-macos-arm64-${{ github.event.inputs.environment }}/lizard || exit 1
-          ls -la artifacts/lizard-windows-x86_64-${{ github.event.inputs.environment }}/lizard.exe || exit 1
+        run: ls -la artifacts/
 
       - name: Create distribution package
         shell: bash
         run: |
           mkdir -p dist
-          cp artifacts/lizard-linux-x86_64-${{ github.event.inputs.environment }}/lizard dist/
-          cp artifacts/lizard-macos-arm64-${{ github.event.inputs.environment }}/lizard dist/
-          cp artifacts/lizard-windows-x86_64-${{ github.event.inputs.environment }}/lizard.exe dist/
+          cp artifacts/lizard-linux-x86_64-${{ env.BUILD_ENV }}/dist/lizard dist/
+          cp artifacts/lizard-macos-arm64-${{ env.BUILD_ENV }}/dist/lizard dist/
+          cp artifacts/lizard-windows-x86_64-${{ env.BUILD_ENV }}/dist/lizard.exe dist/
           ls -la dist/
 
       - name: Upload final artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lizard-all-platforms-${{ github.event.inputs.environment }}
+          name: lizard-all-platforms-${{ env.BUILD_ENV }}
           path: dist/
