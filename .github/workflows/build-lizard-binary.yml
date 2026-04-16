@@ -56,23 +56,16 @@ jobs:
         shell: bash
         run: |
           pyinstaller --onefile \
-                      --name "lizard-${{ matrix.name }}-${{ env.BUILD_ENV }}" \
+                      --name "lizard-${{ matrix.name }}-${{ env.BUILD_ENV }}${{ matrix.suffix }}" \
                       --distpath "./dist" \
                       --workpath "./build" \
                       --specpath "./" \
                       lizard.py
 
-      - name: Rename output
-        shell: bash
-        run: |
-          if [ "${{ matrix.suffix }}" != "" ]; then
-            mv "dist/lizard-${{ matrix.name }}-${{ env.BUILD_ENV }}" "dist/lizard-${{ matrix.name }}-${{ env.BUILD_ENV }}${{ matrix.suffix }}"
-          fi
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lizard-${{ matrix.name }}-${{ env.BUILD_ENV }}
+          name: lizard-${{ matrix.name }}-${{ env.BUILD_ENV }}${{ matrix.suffix }}
           path: |
             dist/*
             lizard.py
