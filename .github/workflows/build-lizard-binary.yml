@@ -53,9 +53,10 @@ jobs:
           if [ "${{ github.event.inputs.lizard_version }}" != "" ]; then
             VERSION="${{ github.event.inputs.lizard_version }}"
           else
-            VERSION="master"
+            VERSION="main"
           fi
-          curl -sL "https://raw.githubusercontent.com/lizard-analyzer/lizard/${VERSION}/lizard.py" -o lizard.py
+          git clone --depth 1 --branch $VERSION https://github.com/lizard-analyzer/lizard.git source
+          cp source/lizard.py lizard.py
 
       - name: Build binary
         run: |
