@@ -49,16 +49,15 @@ jobs:
         run: pip install pyinstaller lizard
 
       - name: Download Lizard
-        env:
-          GIT_TERMINAL_PROMPT: 0
         run: |
           if [ "${{ github.event.inputs.lizard_version }}" != "" ]; then
             VERSION="${{ github.event.inputs.lizard_version }}"
           else
             VERSION="main"
           fi
-          git clone --depth 1 --branch $VERSION https://github.com/lizard-analyzer/lizard.git source
-          cp source/lizard.py lizard.py
+          curl -sL "https://github.com/lizard-analyzer/lizard/archive/refs/heads/${VERSION}.zip" -o source.zip
+          unzip -q source.zip
+          cp lizard-*/lizard.py .
 
       - name: Build binary
         run: |
