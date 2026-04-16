@@ -73,6 +73,8 @@ jobs:
   package:
     needs: build
     runs-on: ubuntu-latest
+    env:
+      BUILD_ENV: ${{ github.event.inputs.environment }}
 
     steps:
       - name: Download all artifacts
