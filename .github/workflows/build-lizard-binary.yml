@@ -48,20 +48,8 @@ jobs:
       - name: Install dependencies
         run: pip install pyinstaller lizard
 
-      - name: Copy source
-        run: |
-          echo "=== Listing files ==="
-          ls -la
-          echo "=== Listing lizard directory ==="
-          ls -la lizard/ 2>/dev/null || echo "lizard dir not found"
-          echo "=== Copying ==="
-          if [ -f "lizard/lizard.py" ]; then
-            cp lizard/lizard.py lizard.py
-          elif [ -f "lizard.py" ]; then
-            cp lizard.py .
-          else
-            find . -name "lizard.py" 2>/dev/null
-          fi
+      - name: Verify source
+        run: ls -la lizard.py
 
       - name: Build binary
         run: |
