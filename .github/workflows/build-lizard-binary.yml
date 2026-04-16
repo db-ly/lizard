@@ -88,9 +88,9 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          cp artifacts/lizard-linux-x86_64-${{ env.BUILD_ENV }}/lizard dist/
-          cp artifacts/lizard-macos-arm64-${{ env.BUILD_ENV }}/lizard dist/
-          cp artifacts/lizard-windows-x86_64-${{ env.BUILD_ENV }}/lizard.exe dist/
+          cp artifacts/lizard-linux-x86_64-${{ env.BUILD_ENV }}/dist/lizard dist/
+          cp artifacts/lizard-macos-arm64-${{ env.BUILD_ENV }}/dist/lizard dist/
+          cp artifacts/lizard-windows-x86_64-${{ env.BUILD_ENV }}/dist/lizard.exe dist/
           ls -la dist/
 
       - name: Upload final artifact
