@@ -98,16 +98,22 @@ jobs:
 
           # 检查制品是否存在再复制
           for artifact in "lizard-linux-x86_64-${{ env.BUILD_ENV }}" "lizard-macos-arm64-${{ env.BUILD_ENV }}" "lizard-windows-x86_64-${{ env.BUILD_ENV }}"; do
-            if [ ! -d "artifacts/$artifact/dist" ]; then
+            # Linux/Mac: check for 'lizard', Windows: check for 'lizard.exe'
+            if [ "$artifact" = "lizard-windows-x86_64-${{ env.BUILD_ENV }}" ]; then
+              check_file="artifacts/$artifact/lizard.exe"
+            else
+              check_file="artifacts/$artifact/lizard"
+            fi
+            if [ ! -f "$check_file" ]; then
               echo "ERROR: 缺少制品 $artifact"
               ls -la artifacts/
               exit 1
             fi
           done
 
-          cp artifacts/lizard-linux-x86_64-${{ env.BUILD_ENV }}/dist/lizard dist/
-          cp artifacts/lizard-macos-arm64-${{ env.BUILD_ENV }}/dist/lizard dist/
-          cp artifacts/lizard-windows-x86_64-${{ env.BUILD_ENV }}/dist/lizard.exe dist/
+          cp artifacts/lizard-linux-x86_64-${{ env.BUILD_ENV }}/lizard dist/
+          cp artifacts/lizard-macos-arm64-${{ env.BUILD_ENV }}/lizard dist/
+          cp artifacts/lizard-windows-x86_64-${{ env.BUILD_ENV }}/lizard.exe dist/
           ls -la dist/
 
       - name: Upload final artifact
