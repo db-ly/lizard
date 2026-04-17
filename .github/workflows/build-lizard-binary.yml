@@ -62,6 +62,13 @@ jobs:
                       --specpath "./" \
                       lizard.py
 
+          # 验证构建输出
+          if [ ! -d "./dist" ]; then
+            echo "ERROR: dist 目录未创建"
+            exit 1
+          fi
+          ls -la dist/
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -90,6 +97,16 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
+
+          # 检查制品是否存在再复制
+          for artifact in "lizard-linux-x86_64-${{ env.BUILD_ENV }}" "lizard-macos-arm64-${{ env.BUILD_ENV }}" "lizard-windows-x86_64-${{ env.BUILD_ENV }}"; do
+            if [ ! -d "artifacts/$artifact/dist" ]; then
+              echo "ERROR: 缺少制品 $artifact"
+              ls -la artifacts/
+              exit 1
+            fi
+          done
+
           cp artifacts/lizard-linux-x86_64-${{ env.BUILD_ENV }}/dist/lizard dist/
           cp artifacts/lizard-macos-arm64-${{ env.BUILD_ENV }}/dist/lizard dist/
           cp artifacts/lizard-windows-x86_64-${{ env.BUILD_ENV }}/dist/lizard.exe dist/
