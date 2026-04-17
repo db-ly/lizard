@@ -89,7 +89,13 @@ jobs:
 
       - name: List files
         shell: bash
-        run: ls -la artifacts/
+        run: |
+          ls -la artifacts/
+          echo "=== Contents of each artifact dir ==="
+          for dir in artifacts/lizard-*; do
+            echo "$dir:"
+            ls -la "$dir/"
+          done
 
       - name: Create distribution package
         shell: bash
