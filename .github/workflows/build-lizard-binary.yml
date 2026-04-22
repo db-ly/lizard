@@ -33,6 +33,10 @@ jobs:
           - os: windows-latest
             name: windows-x86_64
             suffix: .exe
+          - os: ubuntu-latest
+            name: linux-arm64
+            suffix: ''
+            container: docker://toniop1000/pyinstaller:latest
 
     runs-on: ${{ matrix.os }}
 
@@ -104,7 +108,7 @@ jobs:
 
           # 检查制品是否存在再复制
           # artifact 内的文件名就是 artifact 名称本身
-          for artifact in "lizard-linux-x86_64-${{ env.BUILD_ENV }}" "lizard-macos-arm64-${{ env.BUILD_ENV }}" "lizard-windows-x86_64-${{ env.BUILD_ENV }}"; do
+          for artifact in "lizard-linux-x86_64-${{ env.BUILD_ENV }}" "lizard-macos-arm64-${{ env.BUILD_ENV }}" "lizard-windows-x86_64-${{ env.BUILD_ENV }}" "lizard-linux-arm64-${{ env.BUILD_ENV }}"; do
             if [ "$artifact" = "lizard-windows-x86_64-${{ env.BUILD_ENV }}" ]; then
               check_file="artifacts/$artifact/$artifact.exe"
             else
@@ -120,6 +124,7 @@ jobs:
           cp artifacts/lizard-linux-x86_64-${{ env.BUILD_ENV }}/lizard-linux-x86_64-${{ env.BUILD_ENV }} dist/lizard
           cp artifacts/lizard-macos-arm64-${{ env.BUILD_ENV }}/lizard-macos-arm64-${{ env.BUILD_ENV }} dist/lizard
           cp artifacts/lizard-windows-x86_64-${{ env.BUILD_ENV }}/lizard-windows-x86_64-${{ env.BUILD_ENV }}.exe dist/lizard.exe
+          cp artifacts/lizard-linux-arm64-${{ env.BUILD_ENV }}/lizard-linux-arm64-${{ env.BUILD_ENV }} dist/lizard-arm64
           ls -la dist/
 
       - name: Upload final artifact
